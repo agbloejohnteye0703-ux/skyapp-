@@ -1,86 +1,69 @@
-# SkyAR — MVP
+# SkyAR — extended build
 
-Point your phone's camera at the sky and see stars, planets, the Sun and
-Moon labeled in real time, using your camera + GPS + motion sensors.
-No native app build, no npm install — plain HTML/CSS/JS.
+Point your phone's camera at the sky and see stars, constellations, the Sun,
+Moon, planets, and the ISS labeled live — plus search, time travel, a
+Stellarium-style zoomed close-up view, and more.
 
-## What's inside
+## Files (all flat in the repo root — no subfolders, matches your existing repo)
 
 ```
-skyar/
-  index.html          the app shell
-  css/style.css        night-vision-friendly (dim red/amber) UI
-  js/astro-math.js      self-contained astronomy math (Sun/Moon/planets)
-  js/stars-catalog.js  ~70 bright naked-eye stars (J2000 RA/Dec, magnitude)
-  js/constellations.js line data for a handful of recognizable constellations
-  js/app.js            camera + GPS + compass wiring, and rendering loop
+index.html            page shell + all UI controls
+style.css              styling, incl. night-vision red mode
+app.js                  all app logic
+astronomy-engine.js     Astronomy Engine (MIT) — Sun/Moon/planet positions
+star-data.js            ~1,600 stars, mag <= 5.0 (d3-celestial, BSD-3-Clause)
+named-star-data.js      ~60 famous bright stars with labels
+constellation-data.js   89 constellation stick-figure lines
+almanac-data.js         meteor shower calendar + short planet/Moon/Sun facts
 ```
 
-## Run it
+To update your live site: replace each file in your GitHub repo with the
+matching file here (same filenames, so no path changes needed), then give
+GitHub Pages a minute or two to rebuild.
 
-**On a laptop first (fastest way to check it's alive):**
-1. Open this folder in VS Code.
-2. Install the "Live Server" extension (if you don't have it).
-3. Right-click `index.html` → "Open with Live Server".
-4. Click **Start**, allow camera + location. You won't get a real compass
-   heading on a laptop, but you'll see stars/planets render and move as
-   you change the system clock — confirms the math and rendering work.
+## What's new since the MVP
 
-**On your phone (the real use case):**
-Camera, GPS, and motion-sensor APIs only work over **HTTPS** (or
-`localhost`) in mobile browsers — this is a browser security rule, not
-something in this code. Easiest ways to get there:
-- Deploy the folder as a static site (Netlify, Vercel, GitHub Pages —
-  all free, drag-and-drop the folder) and open that URL on your phone.
-- Or run `npx serve` / VS Code Live Server on your laptop and tunnel it
-  with `ngrok http <port>` to get a temporary HTTPS URL.
+- **Calibration** - tap "calibrate," center the crosshair on the Sun or Moon
+  (whichever is above the horizon), tap "confirm." Corrects compass drift;
+  the offset is saved on your device (localStorage) so it persists.
+- **Tap-to-identify** - tap any rendered star, planet, or the ISS to see its
+  name and a short fact/detail panel.
+- **Night-vision mode** (moon button) - tints the whole UI red to protect
+  your night vision outdoors.
+- **Search** (magnifier button) - type a planet or named star, and either it
+  highlights on screen if it's in view, or an arrow shows which way to turn.
+- **Time travel** (clock button) - a slider to preview the sky up to 2 days
+  before/after now, without moving the phone. "Reset to now" snaps back.
+- **Meteor shower banner** - flags major annual showers (Perseids, Geminids,
+  etc.) automatically when today's date falls in their active window; when
+  none are active, shows a countdown to the next one instead.
+- **ISS** - live position from a public API (api.wheretheiss.at), plotted
+  like any other object when it's above your horizon.
+- **Screenshot / share** (camera button) - composites the live camera +
+  overlay into one image and opens the share sheet (or downloads it).
+- **Pinch-to-zoom** - pinch on the sky view (or use the +/- buttons) to
+  digitally zoom up to 6x. Past 3x zoom, centering on the Moon, Saturn, or
+  Jupiter switches to an illustrative close-up: Moon shows its current
+  phase shading, Saturn shows its rings, Jupiter shows its four Galilean
+  moons in their current positions.
 
-Once loaded on your phone: tap **Start**, allow all three permission
-prompts (motion/orientation, camera, location), then hold the phone
-upright and point it at the sky.
+## Two things worth knowing
 
-## How it works
+- **This isn't real optical/telescope zoom.** iOS Safari doesn't expose
+  camera zoom control through the web camera API, so "zoom" here digitally
+  scales the live video (like pinch-zooming a photo) - it doesn't add real
+  resolution. The planet close-ups are illustrative renders (phase, rings,
+  moon positions computed for real), not actual photographs - a phone
+  camera physically can't resolve a planetary disk regardless of software.
+- **ISS shows live position only, not upcoming visible passes.** True pass
+  prediction (which nights it'll be bright enough to see, from your exact
+  location) needs orbital propagation over time (SGP4), not just a current
+  position fix. That's a reasonable next feature if you want it.
 
-- **`astro-math.js`** computes where the Sun, Moon, and planets are
-  right now using standard orbital mechanics (Keplerian elements +
-  Kepler's equation), and converts any object's sky coordinates
-  (RA/Dec) into "how high above the horizon, and which compass
-  direction" (altitude/azimuth) for your exact location and the
-  current time. No external data files or network calls needed.
-- **`stars-catalog.js`** is a small embedded list of bright stars —
-  their sky coordinates don't change on human timescales, so they're
-  just hardcoded.
-- **`app.js`** reads your phone's compass heading and tilt (device
-  orientation sensors), figures out where the camera is currently
-  pointing, and draws a dot + label on the canvas for every object
-  that falls within the camera's approximate field of view.
+## Known limitations carried over from the MVP
 
-## Known MVP limitations (things to tighten up next)
-
-- **Field of view is hardcoded** (`FOV_H` / `FOV_V` in `app.js`) — real
-  phone cameras vary. If labels drift from real objects, adjust these
-  first.
-- **Projection is a simple linear mapping**, not a true perspective/lens
-  projection — fine near the center of frame, gets less accurate near
-  the edges.
-- **Pitch calibration** (`state.pitch = beta - 90`) assumes the phone is
-  held upright in portrait mode. Landscape use, or how "beta" behaves
-  across Android vendors, will need per-device tuning.
-- **Star catalog is ~70 stars**, hand-picked for brightness and
-  constellation coverage — swap in a full Yale Bright Star Catalog or
-  Hipparcos extract (still just a few hundred KB) for denser skies.
-- **Moon position accuracy is ~0.1–0.3°** (a few Moon-widths) — fine
-  for pointing a phone at it, not for precision work.
-- No offline caching / service worker yet — add one if you want it to
-  work without a network connection once loaded.
-
-## Extending it
-
-- More constellations: add star entries to `stars-catalog.js`, then
-  add a line list to `constellations.js`.
-- Deep-sky objects (nebulae, star clusters): add a similar static
-  catalog file and merge it into `getAllObjectsWithAltAz()` in
-  `app.js`.
-- Tap-to-identify: since everything's already drawn as canvas shapes
-  with known screen coordinates, add a `click`/`touch` listener that
-  finds the nearest rendered object to the tap point.
+- Orientation uses a simplified heading+pitch model rather than a full
+  3-axis rotation matrix, so accuracy degrades a bit at extreme tilt angles.
+- Compass accuracy still depends on the phone's magnetometer - the
+  calibration feature helps but won't fix magnetic interference nearby.
+- No atmospheric refraction correction near the horizon.

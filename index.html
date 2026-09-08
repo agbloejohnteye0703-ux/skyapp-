@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>SkyAR — Point your phone at the sky</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>SkyAR — Point your phone at the sky</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <video id="camera-feed" autoplay playsinline muted></video>
   <canvas id="sky-overlay"></canvas>
 
-  <div id="hud"></div>
-
+  <!-- Start screen -->
   <div id="start-screen">
     <div id="start-card">
       <h1>SkyAR</h1>
@@ -23,9 +22,68 @@
     </div>
   </div>
 
-  <script src="astro-math.js"></script>
-  <script src="stars-catalog.js"></script>
-  <script src="constellations.js"></script>
+  <!-- Top HUD -->
+  <div id="hud" class="hidden">
+    <div id="hud-row-1">
+      <span id="hud-time">--:--</span>
+      <span id="hud-coords">--</span>
+      <button id="night-toggle" title="Night vision (red) mode">🌙</button>
+      <button id="shot-btn" title="Save a snapshot">📷</button>
+    </div>
+    <div id="hud-row-2">
+      <button id="mag-down">−</button>
+      <span id="hud-mag">mag 5.0</span>
+      <button id="mag-up">+</button>
+      <button id="toggle-lines">lines</button>
+      <button id="calib-btn">calibrate</button>
+    </div>
+    <div id="shower-banner" class="hidden"></div>
+  </div>
+
+  <!-- Search -->
+  <div id="search-bar" class="hidden">
+    <input id="search-input" type="text" placeholder="Find a planet or star…" autocomplete="off" autocapitalize="off">
+    <button id="search-go">Go</button>
+    <button id="search-close">✕</button>
+  </div>
+  <button id="search-toggle" class="hidden" title="Find an object">🔍</button>
+
+  <!-- Directional arrow for search targets currently out of frame -->
+  <div id="find-arrow" class="hidden">↑</div>
+  <div id="find-label" class="hidden"></div>
+
+  <!-- Time travel -->
+  <div id="time-travel" class="hidden">
+    <button id="time-toggle" title="Time travel">🕐</button>
+    <div id="time-panel" class="hidden">
+      <input id="time-slider" type="range" min="-2880" max="2880" value="0" step="10">
+      <div id="time-readout">Now</div>
+      <button id="time-reset">Reset to now</button>
+    </div>
+  </div>
+
+  <!-- Zoom controls -->
+  <div id="zoom-controls" class="hidden">
+    <button id="zoom-in">＋</button>
+    <div id="zoom-level">1.0×</div>
+    <button id="zoom-out">－</button>
+  </div>
+
+  <!-- Tap-to-identify info panel -->
+  <div id="info-panel" class="hidden">
+    <div id="info-name"></div>
+    <div id="info-detail"></div>
+    <button id="info-close">✕</button>
+  </div>
+
+  <div id="calib-banner" class="hidden"></div>
+  <div id="error-banner" class="hidden"></div>
+
+  <script src="astronomy-engine.js"></script>
+  <script src="star-data.js"></script>
+  <script src="named-star-data.js"></script>
+  <script src="constellation-data.js"></script>
+  <script src="almanac-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
