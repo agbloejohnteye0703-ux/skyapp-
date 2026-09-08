@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>SkyAR — Point your phone at the sky</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <video id="camera-feed" autoplay playsinline muted></video>
+  <canvas id="sky-overlay"></canvas>
+
+  <div id="hud"></div>
+
+  <div id="start-screen">
+    <div id="start-card">
+      <h1>SkyAR</h1>
+      <p>Point your camera at the sky to see stars, planets, the Sun and Moon labeled in real time.</p>
+      <button id="start-btn">Start</button>
+      <p id="status"></p>
+      <p class="fine-print">Needs camera, location, and motion sensor access. Works best outdoors, at night, held upright.</p>
+    </div>
+  </div>
+
+  <script src="js/astro-math.js"></script>
+  <script src="js/stars-catalog.js"></script>
+  <script src="js/constellations.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
